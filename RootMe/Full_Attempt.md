@@ -16,11 +16,13 @@ the results to a new file `version_scan.txt`.
 `nmap 10.10.57.6 -sV -v | tee version_scan.txt`
 
 From the nmap results we can see two services running: 
+
   PORT: 22 => SSH OpenSSH 7.6p1 Ubuntu 4ubuntu0.3
+  
   PORT: 80 => HTTP Apache httpd 2.4.29
 
 Questions three and four require directory enumeration with gobuster. I'll be enumerating with a kali
-default directory wordlist from dirb `common.txt`
+default directory wordlist from dirb, `common.txt`.
 
 `gobuster dir -u http://10.10.57.6 -w /usr/share/wordlists/dirb/common.txt | tee web_scan.txt`
 
@@ -55,23 +57,23 @@ page source code to see if it is a simple client-side filter that can easily be 
 To see if there are any php-like file types that bypass the filter, I intercept the upload request using burpesuite.
 The request is forwarded to intruder, where the file extension is bruteforced using a list php-like extensions.
 
-Checking the intruder response `Length` for all file extensions tested and comparing them to the php extension response length.
+Checking the intruder response `Length` for all file extensions tested and comparing them to the php extension response length
 tells us which extensions will bypass the filter. We determine that `.php3`, `.php4`, `.php5`, `phtml`, and `.inc` are all accepted file extensions
-and have been successfully uploaded
+and have been successfully uploaded.
 
 Navigating to `/uploads` I can see the all files that successfully bypassed the php filter. To catch my shell I
-start a `netcat` listener on the port assigned in the php shell 
+start a `netcat` listener on the port assigned in the php shell. 
 
 `nc -nlvp 1234`
 
 Upon opening the malicious php file I receive my reverse shell connection. To find the flag quickly I use the find command
-and redirect errors into /dev/null
+and redirect errors into `/dev/null`.
 
 This could only be done because the file name we are looking for is provided in the question.
 
 `find / -name user.txt 2>/dev/null`
 
-The results show the file path is `/var/www/user.txt` and the contents are displayed using `cat 
+The results show the file path is `/var/www/user.txt` and the contents are displayed using `cat`.
 
 #### Task 3.a: user.txt
 `Task 3.a Answer: THM{y0u_g0t_a_sh3ll}`
@@ -79,13 +81,12 @@ The results show the file path is `/var/www/user.txt` and the contents are displ
 ## Task 4: Privilege Escalation
 "Now that we have a shell, let's escalate our privileges to root."
 
-Task 4.a directs us to search for "weird" files with SUID permissions so I'll start there
+`Task 4.a` directs us to search for "weird" files with SUID permissions so I'll start there.
 
 `find / -perm -u=s -type f 2>/dev/null`
 
-Immediately among the results python stands out as having SUID permissions. Let's head over to GTFObins
-for a command to escalate to root
-
+Immediately among the results `python` stands out as having SUID permissions. Let's head over to GTFObins
+for a command to escalate to root.
 We find running the following command with SUID permission gives root:
 `python -c 'import os; os.execl("/bin/sh", "sh", "-p")'
 
